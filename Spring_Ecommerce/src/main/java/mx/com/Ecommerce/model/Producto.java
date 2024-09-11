@@ -13,7 +13,7 @@ public class Producto {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 	private String nombre;
 	private String descripcion;
 	private String imagen;
@@ -28,7 +28,7 @@ public class Producto {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Producto(Integer id, String nombre, String descripcion, String imagen, double precio, int cantidad,
+	public Producto(Long id, String nombre, String descripcion, String imagen, double precio, int cantidad,
 			Usuario usuario) {
 		this.id = id;
 		this.nombre = nombre;
@@ -41,11 +41,11 @@ public class Producto {
 
 
 
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
