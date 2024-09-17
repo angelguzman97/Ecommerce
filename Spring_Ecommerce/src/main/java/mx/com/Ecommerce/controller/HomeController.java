@@ -1,6 +1,7 @@
 package mx.com.Ecommerce.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +35,14 @@ public class HomeController {
 	
 	//Método para ver los productos individualmente
 	@GetMapping("productohome/{id}")
-	public String productoHome(@PathVariable Long id) {
+	public String productoHome(@PathVariable Long id, Model model) {
 		log.info("id producto enviado como parámetro {}", id);
 		
+		Producto producto = new Producto();
+		Optional<Producto> productoOptional = productoService.get(id);
+		producto = productoOptional.get();
+		
+		model.addAttribute("producto", producto);
 		
 		return "usuario/productohome";
 	}
