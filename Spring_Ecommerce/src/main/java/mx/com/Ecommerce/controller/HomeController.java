@@ -1,6 +1,7 @@
 package mx.com.Ecommerce.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,8 @@ import mx.com.Ecommerce.model.DetalleOrden;
 import mx.com.Ecommerce.model.Orden;
 import mx.com.Ecommerce.model.Producto;
 import mx.com.Ecommerce.model.Usuario;
+import mx.com.Ecommerce.service.IDetalleOrdenService;
+import mx.com.Ecommerce.service.IOrdenService;
 import mx.com.Ecommerce.service.IUsuarioService;
 import mx.com.Ecommerce.service.ProductoService;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +36,12 @@ public class HomeController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
+	
+	@Autowired
+	private IOrdenService ordenService;
+	
+	@Autowired
+	private IDetalleOrdenService detalleOrdenService;
 
 
 	// Para almacenar los detalles de la orden en una lista
@@ -161,5 +170,32 @@ public class HomeController {
 		
 		return "usuario/resumenorden";
 	}
-
+	
+	//Guardar la orden
+	@GetMapping("/saveOrder")
+	public String saveOrder() {
+		Date fechaCreacion = new Date();//Nos permite obtener la fecha actual
+		
+		orden.setFechaCreacion(fechaCreacion);
+		orden.setNumero(ordenService.generarNumeroOrden());//Se envía el núm. de orden por medio del servicio y el método
+		
+		// Usuario que hizo la orden
+		Usuario usuario = usuarioService.findById(1).get();
+		
+		orden.setUsuario(usuario);
+		ordenService.save(orden);//Guardar la orden
+		
+		//Guardar detalles
+		for(DetalleOrden dt:detalles) {
+			dt.setOrden(orden);//Se envia la orden a detalles
+			detalleOrdenService.save(dt);//Se guarda el detalle
+		}
+		
+		//Limpiar lista y orden
+		orden = new Orden();
+		detalles.clear();
+		
+		return "redirect:/";
+	}
+	
 }
