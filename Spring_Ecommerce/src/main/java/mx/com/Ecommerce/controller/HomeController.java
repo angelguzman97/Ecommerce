@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,6 +198,20 @@ public class HomeController {
 		detalles.clear();
 		
 		return "redirect:/";
+	}
+	
+	@PostMapping("/search")
+	public String seacrhProduct(@RequestParam String nombre, Model model) {
+		
+		log.info("Nombre del producto: {}", nombre);
+		
+		//La lista lo pasamos a un filtro que es una función lambda que trae el producto de tal nombre del producto y la función o método Contains se le pasa en la secuencia de caracteres que en este caso es el String nombre. Si contienen alguna parte de ese nombre que se le envía, se nos ponga y nos devuelva con una lista.
+		List<Producto> productos = productoService.findAll().stream().filter(p -> p.getNombre().contains(nombre)).collect(Collectors.toList());
+		
+		//Se obtiene la lista y se envía a la vista
+		model.addAttribute("productos", productos);
+		
+		return "usuario/home";
 	}
 	
 }
