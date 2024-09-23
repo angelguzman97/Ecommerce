@@ -1,5 +1,7 @@
 package mx.com.Ecommerce.controller;
 
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,32 +10,68 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.servlet.http.HttpSession;
 import mx.com.Ecommerce.model.Usuario;
 import mx.com.Ecommerce.service.IUsuarioService;
 
 @Controller
 @RequestMapping("/usuario")
 public class UsuarioController {
-	
+
 	private final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
-	
+
 	@Autowired
 	private IUsuarioService usuarioService;
-	
+
 	@GetMapping("/registro")
 	public String create() {
 		return "usuario/registro";
 	}
-	
+
 	@PostMapping("/save")
 	public String save(Usuario usuario) {
-		//Mostrar en consola
-		logger.info("usuario: {}",usuario);
-		
+		// Mostrar en consola
+		logger.info("usuario: {}", usuario);
+
 		usuario.setTipo("USER");
-		
+
 		usuarioService.save(usuario);
-		
+
+		return "redirect:/";
+	}
+
+	@GetMapping("/login")
+	public String login() {
+
+		return "usuario/login";
+	}
+
+	@PostMapping("/acceder")
+	public String acceder(Usuario usuario, HttpSession session) { // Se añade un parámetro http para iniciar sesión.
+																	// Session se mantiene activo mientras uno inicie
+																	// sesión
+		// logger.info("Accesos : {}",usuario);
+
+		Optional<Usuario> user = usuarioService.findByEmail(usuario.getEmail());
+
+		//logger.info("Usuario: {}", user.get());
+
+		// Es bueno trabajar con Optional para poder hacer ciertas válidaciones.
+		// Si el usuario está presente en la bd.
+		if (user.isPresent()) {
+			session.setAttribute("idusuario", user.get().getId());
+
+			// Si el usuario es igual a admin, se envía a la pagina de admin.
+			if (user.get().getTipo().equals("ADMIN")) {
+
+				return "redirect:/administrador";
+			} else {
+				return "redirect:/";
+			}
+		} else {
+			logger.info("Usuario no existe");
+		}
+
 		return "redirect:/";
 	}
 }
