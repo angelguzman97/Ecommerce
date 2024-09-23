@@ -50,7 +50,7 @@ public class ProductoController {
 	@PostMapping("/save")
 	public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
 		LOGGER.info("Este es el objeto del producto {}", producto);
-		Usuario u = new Usuario(1, "", "", "", "", "", "", "");
+		Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
 		producto.setUsuario(u);
 		// Se coloca la lógica de la imagen
 		if (producto.getId() == null) {// Cuando se crea un producto
@@ -80,7 +80,7 @@ public class ProductoController {
 	public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
 				
 		if (file.isEmpty() || file.equals(producto.getNombre())) { // editamos el producto, pero no se cambia la imagen	
-			Usuario u = new Usuario(1, "", "", "", "", "", "", "");
+			Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
 			producto.setUsuario(u);
 			
 			Producto p = new Producto();
@@ -96,7 +96,7 @@ public class ProductoController {
 			if (!p.getImagen().equals("default.jpg")) {
 				upload.deleteImage(p.getImagen());
 			}
-			Usuario u = new Usuario(1, "", "", "", "", "", "", "");
+			Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
 			producto.setUsuario(u);
 			String nombreImagen = upload.saveImage(file);// Guardar el nombre de la imagen
 			producto.setImagen(nombreImagen);
