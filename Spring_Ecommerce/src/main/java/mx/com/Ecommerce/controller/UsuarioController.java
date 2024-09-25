@@ -1,5 +1,6 @@
 package mx.com.Ecommerce.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -12,8 +13,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpSession;
+import mx.com.Ecommerce.model.Orden;
 import mx.com.Ecommerce.model.Usuario;
-import mx.com.Ecommerce.service.IDetalleOrdenService;
+import mx.com.Ecommerce.service.IOrdenService;
 import mx.com.Ecommerce.service.IUsuarioService;
 
 @Controller
@@ -26,7 +28,7 @@ public class UsuarioController {
 	private IUsuarioService usuarioService;
 	
 	@Autowired
-	private IDetalleOrdenService detalleService;
+	private IOrdenService ordenService;
 
 	@GetMapping("/registro")
 	public String create() {
@@ -85,6 +87,11 @@ public class UsuarioController {
 		
 		model.addAttribute("sesion", session.getAttribute("idusuario"));
 		
+		Usuario usuario = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
+		
+		List<Orden> ordenes = ordenService.findByUsuario(usuario);
+		
+		model.addAttribute("ordenes", ordenes);
 		
 		return "usuario/compras";
 	}
