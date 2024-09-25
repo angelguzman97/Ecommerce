@@ -27,6 +27,8 @@ import mx.com.Ecommerce.service.IUsuarioService;
 import mx.com.Ecommerce.service.ProductoService;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/")
 public class HomeController {
@@ -53,8 +55,14 @@ public class HomeController {
 	Orden orden = new Orden();
 
 	@GetMapping("")
-	public String home(Model model) {
+	public String home(Model model, HttpSession session) {
+		
+		log.info("Sesión del usuario: {}", session.getAttribute("idusuario"));
+		
 		model.addAttribute("productos", productoService.findAll());
+		
+		//Sesión
+		model.addAttribute("session", session.getAttribute("idusuario"));
 
 		return "usuario/home";
 	}
@@ -148,20 +156,23 @@ public class HomeController {
 	}
 
 	@GetMapping("/getCart")
-	public String getCart(Model model) {
+	public String getCart(Model model, HttpSession session) {
 
 		// Mostrar eso en la vista.
 		model.addAttribute("cart", detalles);
 		// Pasar la orden como tal
 		model.addAttribute("orden", orden);
+		
+		model.addAttribute("sesion", session.getAttribute("idusuario"));
 
 		return "/usuario/carrito";
 	}
 
 	@GetMapping("/order")
-	public String order(Model model) {
+	public String order(Model model, HttpSession session) {
 
-		Usuario usuario = usuarioService.findById(1).get();
+		//Se parsea el id del usuario
+		Usuario usuario = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
 
 		// Mostrar eso en la vista.
 		model.addAttribute("cart", detalles);
@@ -175,14 +186,14 @@ public class HomeController {
 	
 	//Guardar la orden
 	@GetMapping("/saveOrder")
-	public String saveOrder() {
+	public String saveOrder(HttpSession session) {
 		Date fechaCreacion = new Date();//Nos permite obtener la fecha actual
 		
 		orden.setFechaCreacion(fechaCreacion);
 		orden.setNumero(ordenService.generarNumeroOrden());//Se envía el núm. de orden por medio del servicio y el método
 		
 		// Usuario que hizo la orden
-		Usuario usuario = usuarioService.findById(1).get();
+		Usuario usuario = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
 		
 		orden.setUsuario(usuario);
 		ordenService.save(orden);//Guardar la orden

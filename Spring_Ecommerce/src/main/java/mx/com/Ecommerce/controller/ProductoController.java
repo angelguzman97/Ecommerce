@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
 import mx.com.Ecommerce.model.Producto;
 import mx.com.Ecommerce.model.Usuario;
+import mx.com.Ecommerce.service.IUsuarioService;
 import mx.com.Ecommerce.service.ProductoService;
 import mx.com.Ecommerce.service.UploadFileService;
 
@@ -29,6 +31,9 @@ public class ProductoController {
 
 	@Autowired
 	private ProductoService productoService;
+	
+	@Autowired
+	private IUsuarioService usuarioService;
 
 	@Autowired
 	private UploadFileService upload;
@@ -48,10 +53,13 @@ public class ProductoController {
 	}
 
 	@PostMapping("/save")
-	public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
-		LOGGER.info("Este es el objeto del producto {}", producto);
-		Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
-		producto.setUsuario(u);
+	public String save(Producto producto, @RequestParam("img") MultipartFile file, HttpSession session) throws IOException {
+		//LOGGER.info("Este es el objeto del producto {}", producto);
+		
+		Usuario u = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
+		
+		
+		
 		// Se coloca la lógica de la imagen
 		if (producto.getId() == null) {// Cuando se crea un producto
 			String nombreImagen = upload.saveImage(file);// Guardar el nombre de la imagen
@@ -59,6 +67,8 @@ public class ProductoController {
 		}else {
 			
 		}		
+		
+		producto.setUsuario(u);
 
 		productoService.save(producto);
 		return "redirect:/productos";
@@ -77,10 +87,12 @@ public class ProductoController {
 	}
 
 	@PostMapping("/update")
-	public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
-				
+	public String update(Producto producto, @RequestParam("img") MultipartFile file, HttpSession session) throws IOException {
+		
+		Usuario u = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
+		
 		if (file.isEmpty() || file.equals(producto.getNombre())) { // editamos el producto, pero no se cambia la imagen	
-			Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
+			//Usuario u = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
 			producto.setUsuario(u);
 			
 			Producto p = new Producto();
@@ -96,7 +108,7 @@ public class ProductoController {
 			if (!p.getImagen().equals("default.jpg")) {
 				upload.deleteImage(p.getImagen());
 			}
-			Usuario u = new Usuario((long) 1, "", "", "", "", "", "", "");
+			//Usuario u = usuarioService.findById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
 			producto.setUsuario(u);
 			String nombreImagen = upload.saveImage(file);// Guardar el nombre de la imagen
 			producto.setImagen(nombreImagen);
